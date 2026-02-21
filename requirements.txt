@@ -2,4 +2,3 @@ fastapi
 uvicorn 
 playwright 
 requests
-playwright install
