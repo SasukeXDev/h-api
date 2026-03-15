@@ -24,7 +24,7 @@ async def extract_video_links(data: PageRequest):
 
     m3u8_url = manifests[0]
     m3u8_file = download_m3u8(m3u8_url)
-    streams = extract_streams_from_m3u8(m3u8_file)
+    streams = extract_streams_from_m3u8(m3u8_file, m3u8_url)
 
     return {
         "page_url": data.url,
