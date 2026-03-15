@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extraction Result</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <main class="container">
+    <h1>Extraction Result</h1>
+
+    {% if error %}
+      <section class="card error">
+        <strong>Error:</strong> {{ error }}
+      </section>
+    {% elif data %}
+      <section class="card">
+        <p><strong>Input page:</strong> {{ data.page_url }}</p>
+        <p><strong>Selected Manifest:</strong> <a href="{{ data.selected_manifest }}" target="_blank" rel="noopener">{{ data.selected_manifest }}</a></p>
+
+        {% if data.master_playlist %}
+          <p><strong>Master Playlist:</strong> <a href="{{ data.master_playlist }}" target="_blank" rel="noopener">{{ data.master_playlist }}</a></p>
+        {% endif %}
+
+        <h2>Available Streams</h2>
+        <ul>
+          {% for stream in data.streams %}
+            <li>{{ stream.quality }} - <a href="{{ stream.url }}" target="_blank" rel="noopener">{{ stream.url }}</a></li>
+          {% endfor %}
+        </ul>
+
+        <a class="button" href="{{ url_for('player') }}?manifest={{ data.selected_manifest|urlencode }}">Open Player</a>
+      </section>
+
+      {% if data.found_manifests %}
+      <section class="card">
+        <h2>All Detected Manifests</h2>
+        <ul>
+          {% for item in data.found_manifests %}
+            <li><a href="{{ item }}" target="_blank" rel="noopener">{{ item }}</a></li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+    {% endif %}
+
+    <a class="button secondary" href="/">Try another URL</a>
+  </main>
+</body>
+</html>

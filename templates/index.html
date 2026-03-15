@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video URL Extractor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <main class="container">
+    <h1>HLS Video URL Extractor</h1>
+    <p>Submit a page URL to find and parse available .m3u8 manifests.</p>
+
+    <form action="/extract" method="post" class="card">
+      <label for="video_url">Video page URL</label>
+      <input id="video_url" name="video_url" type="url" placeholder="https://example.com/video-page" required />
+      <button type="submit">Extract Streams</button>
+    </form>
+  </main>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HLS Player</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+  <main class="container">
+    <h1>Video Player</h1>
+
+    {% if error %}
+      <section class="card error">{{ error }}</section>
+    {% elif player_data %}
+      <section class="card">
+        <video id="video" controls style="width: 100%; max-width: 900px;"></video>
+
+        <p><strong>Manifest:</strong> <a href="{{ player_data.manifest }}" target="_blank" rel="noopener">{{ player_data.manifest }}</a></p>
+
+        <label for="qualitySelector">Quality</label>
+        <select id="qualitySelector"></select>
+      </section>
+
+      <script>
+        const manifestUrl = {{ player_data.manifest|tojson }};
+        const initialStreams = {{ player_data.streams|tojson }};
+
+        const video = document.getElementById('video');
+        const selector = document.getElementById('qualitySelector');
+
+        function addOption(label, value) {
+          const opt = document.createElement('option');
+          opt.textContent = label;
+          opt.value = value;
+          selector.appendChild(opt);
+        }
+
+        if (Hls.isSupported()) {
+          const hls = new Hls();
+          hls.loadSource(manifestUrl);
+          hls.attachMedia(video);
+
+          hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            selector.innerHTML = '';
+            addOption('Auto', '-1');
+
+            hls.levels.forEach((level, index) => {
+              const label = level.height ? `${level.height}p` : `Level ${index + 1}`;
+              addOption(label, String(index));
+            });
+
+            if (hls.levels.length === 0 && initialStreams.length > 0) {
+              selector.innerHTML = '';
+              initialStreams.forEach((stream, idx) => addOption(stream.quality, stream.url));
+            }
+
+            video.play().catch(() => {});
+          });
+
+          selector.addEventListener('change', function () {
+            const value = selector.value;
+            if (value === '-1') {
+              hls.currentLevel = -1;
+              return;
+            }
+
+            if (/^\d+$/.test(value)) {
+              hls.currentLevel = Number(value);
+              return;
+            }
+
+            hls.loadSource(value);
+          });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = manifestUrl;
+          initialStreams.forEach((stream) => addOption(stream.quality, stream.url));
+          selector.addEventListener('change', function () {
+            video.src = selector.value;
+            video.play().catch(() => {});
+          });
+        }
+      </script>
+    {% endif %}
+
+    <a class="button secondary" href="/">Back</a>
+  </main>
+</body>
+</html>
